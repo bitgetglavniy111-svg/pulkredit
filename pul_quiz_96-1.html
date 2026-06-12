@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="kaa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pul Nazariyası Quiz — 96 soraw</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap');
+:root{--bg:#08080f;--card:#101018;--border:#1a1a2e;--accent:#0ea5e9;--accent2:#06d6a0;--accent3:#f72585;--text:#e8e8f0;--muted:#55556a;--correct:#06d6a0;--wrong:#f72585}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background-image:radial-gradient(ellipse at 10% 10%,rgba(14,165,233,.07) 0%,transparent 55%),radial-gradient(ellipse at 90% 90%,rgba(6,214,160,.06) 0%,transparent 55%)}
+.container{width:100%;max-width:760px}
+.start-screen{text-align:center;animation:fadeIn .5s ease}
+.logo{font-family:'Unbounded',sans-serif;font-size:clamp(22px,5.5vw,46px);font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:6px}
+.subtitle{color:var(--muted);font-size:11px;letter-spacing:4px;text-transform:uppercase;margin-bottom:12px}
+.total-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(14,165,233,.15);border:1px solid rgba(14,165,233,.3);border-radius:99px;padding:6px 18px;font-size:11px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
+.group-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:24px}
+.group-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 12px;cursor:pointer;transition:all .25s ease;text-align:center;position:relative;overflow:hidden}
+.group-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 10px 30px rgba(14,165,233,.2)}
+.gc-num{font-family:'Unbounded',sans-serif;font-size:32px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:5px}
+.gc-label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px}
+.gc-range{font-size:11px;color:var(--text);font-weight:600;margin-bottom:4px}
+.gc-timer{font-size:10px;color:var(--accent2);letter-spacing:1px}
+.gc-score{font-size:11px;margin-top:4px;font-weight:700}
+.gc-done{position:absolute;top:8px;right:10px;font-size:13px}
+.start-all-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:15px 48px;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;border-radius:10px;cursor:pointer;letter-spacing:1px;transition:all .25s;box-shadow:0 4px 20px rgba(14,165,233,.3)}
+.start-all-btn:hover{transform:scale(1.04);box-shadow:0 6px 28px rgba(14,165,233,.5)}
+.quiz-screen{display:none;animation:fadeIn .4s ease}
+.quiz-screen.active{display:block}
+.quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.back-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:7px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px;transition:all .2s}
+.back-btn:hover{border-color:var(--accent);color:var(--accent)}
+.quiz-meta{text-align:right}
+.group-title-lbl{font-family:'Unbounded',sans-serif;font-size:10px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase}
+.q-counter{font-size:12px;color:var(--muted);margin-top:2px}
+.progress-bar{width:100%;height:3px;background:var(--border);border-radius:2px;margin-bottom:16px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .4s ease}
+.timer-wrap{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:10px 16px;background:var(--card);border:1px solid var(--border);border-radius:12px}
+.timer-arc-wrap{position:relative;width:46px;height:46px;flex-shrink:0}
+.timer-arc-wrap svg{transform:rotate(-90deg)}
+.timer-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Unbounded',sans-serif;font-size:13px;font-weight:900;color:var(--accent2)}
+.timer-num.warn{color:#f4a261}
+.timer-num.danger{color:var(--wrong);animation:tpulse .5s infinite}
+.timer-info{flex:1}
+.timer-lbl{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px}
+.timer-bar{width:100%;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.timer-bar-fill{height:100%;background:var(--accent2);border-radius:3px;transition:width .9s linear}
+.timer-bar-fill.warn{background:#f4a261}
+.timer-bar-fill.danger{background:var(--wrong)}
+@keyframes tpulse{0%,100%{opacity:1}50%{opacity:.3}}
+.question-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:14px}
+.q-number{font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.q-text{font-family:'Unbounded',sans-serif;font-size:clamp(13px,2.2vw,16px);font-weight:700;line-height:1.55;color:var(--text)}
+.options-list{display:flex;flex-direction:column;gap:9px}
+.option-btn{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:13px 16px;text-align:left;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);transition:all .2s;display:flex;align-items:flex-start;gap:10px;line-height:1.45}
+.option-letter{width:27px;height:27px;border-radius:7px;background:var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0;transition:all .2s;margin-top:1px}
+.option-btn:hover:not(:disabled){border-color:var(--accent);background:rgba(14,165,233,.06)}
+.option-btn:hover:not(:disabled) .option-letter{background:var(--accent);color:#fff}
+.option-btn.correct{border-color:var(--correct);background:rgba(6,214,160,.07)}
+.option-btn.correct .option-letter{background:var(--correct);color:#000}
+.option-btn.wrong{border-color:var(--wrong);background:rgba(247,37,133,.07);animation:shake .4s ease}
+.option-btn.wrong .option-letter{background:var(--wrong);color:#fff}
+.option-btn:disabled{cursor:default}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.next-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:14px;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;border-radius:11px;cursor:pointer;letter-spacing:1px;transition:all .2s;display:none;margin-top:16px;box-shadow:0 4px 16px rgba(14,165,233,.25)}
+.next-btn.show{display:block;animation:fadeIn .3s ease}
+.next-btn:hover{box-shadow:0 6px 22px rgba(14,165,233,.45)}
+.result-screen{display:none;text-align:center;animation:fadeIn .5s ease}
+.result-screen.active{display:block}
+.score-ring{width:160px;height:160px;margin:0 auto 28px;position:relative}
+.score-ring svg{transform:rotate(-90deg)}
+.score-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.score-pct{font-family:'Unbounded',sans-serif;font-size:32px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.score-label{font-size:10px;color:var(--muted);letter-spacing:1px}
+.result-title{font-family:'Unbounded',sans-serif;font-size:clamp(18px,4vw,28px);font-weight:900;margin-bottom:8px}
+.result-detail{color:var(--muted);font-size:13px;margin-bottom:28px}
+.stats-row{display:flex;gap:12px;justify-content:center;margin-bottom:28px;flex-wrap:wrap}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:14px 20px;min-width:85px}
+.stat-val{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900}
+.stat-val.g{color:var(--correct)} .stat-val.r{color:var(--wrong)} .stat-val.p{color:var(--accent)}
+.stat-lbl{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.result-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-outline{background:none;border:1px solid var(--border);color:var(--text);padding:12px 22px;border-radius:9px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;transition:all .2s}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="start-screen" id="startScreen">
+    <div class="logo">PUL NAZARIYASI</div>
+    <div class="subtitle">Pul hám kredit testleri</div>
+    <div class="total-badge">📚 96 soraw · 4 top</div>
+    <div class="group-grid" id="groupGrid"></div>
+    <button class="start-all-btn" onclick="startQuiz('all')">BARLIQ 96 SORAW →</button>
+  </div>
+
+  <div class="quiz-screen" id="quizScreen">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="goHome()">← Qaytıw</button>
+      <div class="quiz-meta">
+        <div class="group-title-lbl" id="quizGroupLabel"></div>
+        <div class="q-counter" id="qCounter"></div>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="timer-wrap" id="timerWrap" style="display:none">
+      <div class="timer-arc-wrap">
+        <svg width="46" height="46" viewBox="0 0 46 46">
+          <circle cx="23" cy="23" r="19" fill="none" stroke="#1a1a2e" stroke-width="4"/>
+          <circle id="timerArc" cx="23" cy="23" r="19" fill="none" stroke="#06d6a0" stroke-width="4" stroke-linecap="round" stroke-dasharray="119" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-num" id="timerNum">30</div>
+      </div>
+      <div class="timer-info">
+        <div class="timer-lbl">WAQT</div>
+        <div class="timer-bar"><div class="timer-bar-fill" id="timerBarFill" style="width:100%"></div></div>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="q-number" id="qNumber"></div>
+      <div class="q-text" id="qText"></div>
+    </div>
+    <div class="options-list" id="optionsList"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">KEYINGISI →</button>
+  </div>
+
+  <div class="result-screen" id="resultScreen">
+    <div class="score-ring">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <circle cx="80" cy="80" r="68" fill="none" stroke="#1a1a2e" stroke-width="10"/>
+        <circle cx="80" cy="80" r="68" fill="none" stroke="url(#rg)" stroke-width="10" stroke-linecap="round" stroke-dasharray="427" id="scoreArc" stroke-dashoffset="427"/>
+        <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#06d6a0"/></linearGradient></defs>
+      </svg>
+      <div class="score-center">
+        <div class="score-pct" id="scorePct">0%</div>
+        <div class="score-label">NÁTIYJЕ</div>
+      </div>
+    </div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-detail" id="resultDetail"></div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val g" id="correctCount">0</div><div class="stat-lbl">Durıs</div></div>
+      <div class="stat-box"><div class="stat-val r" id="wrongCount">0</div><div class="stat-lbl">Nadurıs</div></div>
+      <div class="stat-box"><div class="stat-val p" id="totalCount">0</div><div class="stat-lbl">Jámi</div></div>
+    </div>
+    <div class="result-actions">
+      <button class="btn-outline" onclick="retryQuiz()">↺ Qayta</button>
+      <button class="start-all-btn" onclick="goHome()">⊞ Toplar</button>
+    </div>
+  </div>
+
+</div>
+<script>
+const ALL_QUESTIONS = [{"q": "Puldıń tiykarǵı wazıypaları - bul:", "options": ["baha ólshewi, aylanıs quralı, tólew quralı, jıynaw quralı", "baha ólshewi, baha masshtabı, aylanıs quralı", "baha masshtabı, baha ólshewi, jáhan pulları", "baha ólshewi, jáhan pulları, baha masshtabı, aylanıs quralı"], "correct": 0}, {"q": "Barter - bul:", "options": ["tovardı tovarǵa tikkeley almaslaw", "tovardı tikkeley aqshaǵa almaslaw", "tovardıń naq pulsız satılıwı", "tovardı kreditke satılıwı"], "correct": 0}, {"q": "Tólew processlerinde tikkeley qatnasıp atırǵan hárekettegi pul massası - bul:", "options": ["aktiv pul aylanısı", "passiv pul aylanısı:", "aktiv-passiv pul aylanısı", "aylana pul aylanısı"], "correct": 0}, {"q": "Mámlekette pul aylanısın nızamlı hám proporcional túrde shólkemlestiriwde qollanılatuǵın usıllar kompleksi - bul:", "options": ["pul sisteması", "pul aylanısı", "pul baylanısı", "pul agregatı"], "correct": 0}, {"q": "Eki metallǵa: altın hám gúmiske nızamlı tártipte ulıwma ekvivalent roliniń biriktirip qoyılıwı - bul:", "options": ["bimetallizm", "monometallizm", "emissiya", "monetarizm"], "correct": 0}, {"q": "Bir metalǵa barlıq tovarlar mánisin ózinde sáwlelendiriwshi ulıwma ekvivalent roldiń biriktirip qoyılıwı - bul:", "options": ["monometallizm", "bimetallizm", "emissiya", "monetarizm"], "correct": 0}, {"q": "Pul aylanısı nızamı - bul:", "options": ["aylanıs ushın zárúr bolǵan pul muǵdarın belgileytuǵın, tovar pul munasábetlerin ózinde sáwlelendiretuǵın nızam", "pul háreketin bildiriwshi nızam", "barlıq pul túrlerine tiyisli bolǵan nızam", "pul aylanısın ózinde ańlatıwshı nızam"], "correct": 0}, {"q": "Pul aylanısındaǵı turaqlılıq tómendegilerge baylanıslı:", "options": ["puldıń qadr-mánisine, aqshaǵa bolǵan talap hám usınısqa", "bazarǵa shıǵarılǵan tovar hám xızmetlerdiń kólemine", "puldıń qádir-qımbatına", "aqshaǵa bolǵan talap hám usınısqa"], "correct": 0}, {"q": "Pul usınısı - bul:", "options": ["aylanısqa shıǵarılǵan málim túrdegi pul muǵdarı bolıp tabıladı", "aqshaǵa bolǵan mútajlik bolıp tabıladı", "aylanısqa shıǵarılǵan tovarlar bolıp tabıladı", "pul teoriyası"], "correct": 0}, {"q": "Aqshaǵa talap - bul:", "options": ["aqshaǵa bolǵan mútajlik bolıp tabıladı", "aylanısqa shıǵarılǵan málim túrdegi pul muǵdarı bolıp tabıladı", "aylanısqa shıǵarılǵan tovarlar bolıp tabıladı", "pul teoriyası"], "correct": 0}, {"q": "Eski, qádirsizlengen pul birliklerinen putkinley waz keshilib, aylanısqa jańa pullardıń shıǵarılıwı - bul pul aylanısın turaqlılastırıwdıń:", "options": ["nulifikatsiya usılı", "denominatsiya usılı", "revalvatsiya usılı", "devalvatsiya usılı"], "correct": 0}, {"q": "Valyuta kursınıń mámleket tárepinen rásmiy asırılıwı - bul:", "options": ["revalvatsiya", "devalvatsiya", "nulifikatsiya", "denominatsiya"], "correct": 0}, {"q": "Valyuta kurstıń mámleket tárepinen rásmiy túsiriliwi - bul:", "options": ["devalvatsiya", "revalvatsiya", "nulifikatsiya", "denominatsiya"], "correct": 0}, {"q": "Pul birligi degende:", "options": ["mámlekettegi tólew quralı birligi túsiniledi", "mámleket pul birliginiń altınǵa teń bólegi túsiniledi", "aylanbadaǵı pul massasın tártipke salıwshı birlik túsiniledi", "baha masshtabı túsiniledi"], "correct": 0}, {"q": "Pul aylanısında:", "options": ["naq hám naq bolmaǵan pullar qatnasadı", "tek naq pul qatnasadı", "tek naq bolmaǵan pullar qatnasadı", "tek real pullar qatnasadı"], "correct": 0}, {"q": "Procent tólew shárti menen waqtınsha paydalanıwǵa beriletuǵın jalpı pul aqshaları- bul:", "options": ["ssuda kapitalı dep ataladı", "investitsiya dep ataladı", "salıq dep ataladı", "qarjı dep ataladı"], "correct": 0}, {"q": "Ssuda kapitalı bazarı tómendegi tiykarǵı segmentlerge bólinedi:", "options": ["pul bazarı, kapital bazarı, fond bazarı, ipoteka bazarı", "pul bazarı, kapital bazarı, xızmetler bazarı, tovar bazarı", "pul bazarı, bazar, fond bazarı, ipoteka bazarı", "kapital bazarı, fond bazarı, xızmetler bazarı"], "correct": 0}, {"q": "Aylanba aqshalardıń háreketin támiyinleytuǵın qısqa múddetli kredit operaciyalarınıń jıyındısı - bul:", "options": ["pul bazarı dep ataladı", "kapital bazarı dep ataladı", "fond bazarı dep ataladı", "ipoteka bazarı dep ataladı"], "correct": 0}, {"q": "Tiykarǵı aqshalar háreketin támiyinleytuǵın qısqa hám uzaq múddetli operaciyalar kompleksi - bul:", "options": ["kapital bazarı dep ataladı", "pul bazarı dep ataladı", "fond bazarı dep ataladı", "ipoteka bazarı dep ataladı"], "correct": 0}, {"q": "Qımbat bahalı qaǵazlar bazarına xızmet etiwshi kredit operatsiyalar kompleksi - bul:", "options": ["fond bazarı dep ataladı", "pul bazarı dep ataladı", "kapital bazarı dep ataladı", "ipoteka bazarı dep ataladı"], "correct": 0}, {"q": "Kóshpelis múlk bazarına xızmet etiwshi kredit operatsiyalar kompleksi - bul:", "options": ["ipoteka bazarı dep ataladı", "pul bazarı dep ataladı", "fond bazarı dep ataladı", "kapital bazarı dep ataladı"], "correct": 0}, {"q": "Waqtınsha bos turǵan pul qarjıların málim múddetke aqsha tólew shárti menen qarızǵa alıw hám qaytarıp beriwden kelip shıqqan ekonomikalıq munasábetler jıyındısı - bul:", "options": ["kredit", "salıq", "investitsiya", "qamsızlandırıw"], "correct": 0}, {"q": "Kreditordan qarız alıwshıǵa beriletuǵın hám qarız alıwshıdan qarız beretuǵınǵa qaytıp beriletuǵın baha - bul:", "options": ["kredit obekti", "kredit subekti", "kredit munasábeti", "procent stavkası"], "correct": 0}, {"q": "Tovar kórinisinde beriletuǵın kredit - bul:", "options": ["tutınıw krediti", "kommerciya krediti", "mámleket krediti", "xalıq aralıq kredit"], "correct": 0}, {"q": "Mámleket kreditiniń tiykarǵı ózgesheligi - bul:", "options": ["kredit munasábetlerinde mámlekettiń qatnasıwı", "kredit munasábetlerinde fizikalıq adamlardıń qatnasıwı", "sawdanı kreditlew", "kishi biznes subektlerin kreditlew"], "correct": 0}, {"q": "Bir mámleket, sol mámleket banki, huqıqıy shaxsı tárepinen ekinshi bir mámleketke, onıń banklerine, basqa xuquqiy shaxslarına múddetlilik hám tólemlilik tiykarında beriletuǵın kredit - bul:", "options": ["xalıq aralıq kredit", "tutınıw krediti", "ishki kredit", "lizing kredit"], "correct": 0}, {"q": "Oraylıq bank tárepinen tiyisli litsenziyaǵa iye bolmaǵan fizikalıq shaxslar, sonıń menen birge xojalıq júrgiziwshi subektler tárepinen aqshalardı waqtınsha paydalanıw ushın beriletuǵın kredit - bul:", "options": ["sudxorlıq krediti", "kommerciya krediti", "Tutınıw krediti", "bank krediti"], "correct": 0}, {"q": "Pul aqshaların jıynawshı, saqlap beretuǵın, kredit esap hám basqa hár túrlı dáldalshılıq operatsiyaların orınlawshı shólkem - bul:", "options": ["bank dep ataladı", "salıq mekememesi dep ataladı", "qamsızlandırıw shólkemi dep ataladı", "kassa dep ataladı"], "correct": 0}, {"q": "Kredit munasábetler kompleksi hám kredit munasábetlerdi quraytuǵın hám ámelge asırıwshı kredit institutlar jıyındısı - bul:", "options": ["kredit sisteması dep ataladı", "bank sisteması dep ataladı", "finans sisteması dep ataladı", "oraylıq bank dep ataladı"], "correct": 0}, {"q": "Mámlekette pul-kredit siyasatın, emissiya processlerin alıp baratuǵın bank - bul:", "options": ["Oraylıq bank", "kommerciya banki", "Ipoteka banki", "milliy bank"], "correct": 0}, {"q": "Milliy valyuta turaqlılıǵın támiyinlew, valyuta kurs hám procent stavkaların aqılǵa say ornatıw tiykarında inflyatsiya pátini kemeytiw, kreditten paydalanıwdıń natiyjeliligin asırıw hám ekonomikanıń turaqlı artıwın támiyinlew maqsetinde alıp barılatuǵın siyasat - bul:", "options": ["pul kredit siyasatı", "fiskal siyasat", "qamsızlandırıw siyasatı", "social siyasat"], "correct": 0}, {"q": "Oraylıq bank tárepinen kommerciya bankleri ushın májburiy rezervler normasın ornatıp beriw siyasatın ámelge asırıwdan maqset:", "options": ["banklerdiń likvidliligini muwapıqlastırıw hám inflyatsiya pátini túsiriw", "banklerdiń kredit múmkinshiligin asırıw", "banklerdiń depozit múmkinshiligin asırıw", "banklerdiń básekige shıdamlıliligini asırıw"], "correct": 0}, {"q": "Ashıq bazar siyasatı - bul:", "options": ["oraylıq banktiń ashıq bazarda qımbat bahalı qaǵazlardı óz esabınan satıp alıwı hám satıwı", "banklerdiń likvidliligin muwapıqlastırıw hám inflyatsiya pátin túsiriw", "qımbatbahalı qaǵazlar aldı sattısı", "pul bazarı"], "correct": 0}, {"q": "Pul massası koleminiń ózgeriwin ornatılǵan usıllar járdeminde shegaralaw - bul:", "options": ["targetrlew", "kreditlew", "depozitlew", "investitsiyalaw"], "correct": 0}, {"q": "Oraylıq banktiń milliy valyuta kursına tásir qılıw maqsetinde sırt el valyutasın satıw hám satıp alıw boyınsha ótkiziletuǵın operatsiyalar menen valyuta bazarı iskerligine aralasıwı - bul:", "options": ["valyuta interventsiyası dep ataladı", "devis siyasatı dep ataladı", "devalvatsiya dep ataladı", "revalvatsiya dep ataladı"], "correct": 0}, {"q": "Svop - bul:", "options": ["bank operatsiyası bolıp, valyuta belgili múddetke naq satıladı hám bir waqıttıń ózinde valyutalıq sawda boyınsha qarsı pitim dúziledi", "milliy valyuta kursdıń mámleket tárepinen rásmiy túsiriliwi", "milliy valyuta kursınıń mámleket tárepinen rásmiy asırılıwı", "qımbatlı qaǵazlar sawdası"], "correct": 0}, {"q": "Sırt el valyutası altın hám basqa valyuta bahalıqları menen bolatuǵın  operatsiyalardı mámleket kóleminde nızam tiykarında sheklew - bul:", "options": ["valyutalıq shekleniwler dep ataladı", "valyuta interventsiyasi dep ataladı", "devis siyasatı dep ataladı", "devalvatsiya dep ataladı"], "correct": 0}, {"q": "Ózbekstan Respublikasında:", "options": ["eki basqıshlı bank sisteması ámel etedi", "bir basqıshlı bank sisteması ámel etedi", "úsh basqıshlı bank sisteması ámel etedi", "tek mámleket bankleri iskerlik júrgizedi"], "correct": 0}, {"q": "Ózbekstan Respublikası Oraylıq bankiniń tiykarǵı maqseti:", "options": ["pul-kredit sisteması hám milliy valyuta turaqlılıǵın támiyinlew tiykarında ekonomikalıq ósiwge erisiw", "salıq tarawin jetilistiriw", "fiskal siyasatın aparıw", "iskerlikten kóbirek dáramat alıw"], "correct": 0}, {"q": "Oraylıq bank - bul:", "options": ["mámleket banki", "kommerciya banki", "menshikli bank", "qospa bank"], "correct": 0}, {"q": "Ózbekstan Respublikası Oraylıq bankiniń bas maqseti:", "options": ["milliy valyutanıń turaqlılıǵın támiyinlew", "salıq tarawin jetilistiriw", "fiskal siyasatın aparıw", "iskerlikten kóbirek dáramat alıw"], "correct": 0}, {"q": "Bank resursların qáliplestiriw menen baylanıslı bolǵan operatsiyalar banklerdiń:", "options": ["passiv operatsiyaları dep ataladı", "aktiv operatsiyaları dep ataladı", "aktiv-passiv operatsiyaları dep ataladı", "kredit operatsiyaları dep ataladı"], "correct": 0}, {"q": "Dáramat alıw maqsetinde bank resursların jaylastırıw menen baylanıslı bolǵan operatsiyalar banklerdiń:", "options": ["aktiv operatsiyaları dep ataladı", "passiv operatsiyaları dep ataladı", "aktiv-passiv operatsiyaları dep ataladı", "kredit operatsiyaları dep ataladı"], "correct": 0}, {"q": "Ustav kapitalı:", "options": ["banklerdiń óz qarjıları esaplanadi", "tartılǵan qarjıları esaplanadi", "Banklerdiń dáramatları esaplanadi", "banklerdiń ǵárejetleri esaplanadi"], "correct": 0}, {"q": "Banklerdiń rezerv fondı:", "options": ["paydadan ajıratılǵan qarjılar esabınan payda boladı", "túsim esabınan payda boladı", "salıqlar esabınan qáliplesedi", "kredit esabınan qáliplestiredi"], "correct": 0}, {"q": "Rezerv fondına ajıratılǵan qarjılar hám devidentler tolıqlanǵannan keyin qalatuǵın paydanıń bir bólegi:", "options": ["bólistirilmegen payda esaplanadı", "depozit esaplanadı", "kredit esaplanadı", "salıq esaplanadı"], "correct": 0}, {"q": "Klient tárepinen bankke málim múddetke qoyılatuǵın qoyılmalar:", "options": ["múddetli qoyılmalar dep ataladı", "múddetsiz qoyılmalar dep ataladı", "Investitsiya dep ataladı", "kredit dep ataladı"], "correct": 0}, {"q": "Standart kreditler boyınsha:", "options": ["10 procent átirapında rezerv payda etiledi", "25 procent átirapında rezerv payda etiledi", "50 procent átirapında rezerv payda etiledi", "100 procent átirapında rezerv payda etiledi"], "correct": 0}, {"q": "Substandart kreditler boyınsha:", "options": ["25 procent átirapında rezerv payda etiledi", "10 procent átirapında rezerv payda etiledi", "50 procent átirapında rezerv payda etiledi", "100 procent átirapında rezerv payda etiledi"], "correct": 0}, {"q": "Shubhalı kreditler boyınsha:", "options": ["50 procent átirapında rezerv payda etiledi", "25 procent átirapında rezerv payda etiledi", "10 procent átirapında rezerv payda etiledi", "100 procent átirapında rezerv payda etiledi"], "correct": 0}, {"q": "Isenimsiz kreditler boyınsha:", "options": ["100 procent átirapında rezerv payda etiledi", "25 procent átirapında rezerv payda etiledi", "50 procent átirapında rezerv payda etiledi", "10 procent átirapında rezerv payda etiledi"], "correct": 0}, {"q": "Inkasso operatsiyaları - bul:", "options": ["bank tárepinen klientlerge olardıń óz tapsırmaları hám óz esaplarınan túrli hújjetler boyınsha pul alıw processin támiyinlew", "klientlerge kreditler beriw", "depozit operatsiyaların ámelge asırıw", "qımbatlı qaǵazlar operatsiyaları boyınsha esaplardı ámelge asırıw"], "correct": 0}, {"q": "Kommerciya bankleriniń investitsiyası - bul:", "options": ["bank tárepinen túrli múlk formasındaǵı kárxana hám shólkemlerdiń qımbatlı qaǵazlarına uzaq múddetke qoyılǵan aqsha bolıp tabıladı", "bank tárepinen berilgen kreditler bolıp tabıladı", "bank tárepinen tartılǵan aqshalar bolıp tabıladı", "banktiń alǵan tabısı bolıp tabıladı"], "correct": 0}, {"q": "Óz aktivlerin naq pul retinde isletiw yamasa olardıń nominal mánisin saqlap qalǵan túrde demde pul qarjıların aylandırıw jolı menen bar finanslıq minnetlemelerdi qaplay alıw uqıplılıǵı:", "options": ["bank likvidliligi dep ataladı", "bank balansı dep ataladı", "bank marjasi dep ataladı", "bank kapitalı dep ataladı"], "correct": 0}, {"q": "Yuridikalıq hám fizikalıq shaxslardıń pul qarjıları yamasa qımbatlı qaǵazlardı shártnama tiykarında saqlaw ushın bankke qoyılǵan amanatlar:", "options": ["depozit dep ataladı", "kredit dep ataladı", "Investitsiya dep ataladı", "kapital dep ataladı"], "correct": 0}, {"q": "Mámleketntng milliy pul birligin irilestiriw - bul:", "options": ["denominatsiya dep ataladı", "nullifikatsiya dep ataladı", "revalvatsiya dep ataladı", "devalvatsiya dep ataladı"], "correct": 0}, {"q": "Óz iyeleri qolında waqtınsha bos turǵan pul qarjıların basqalar tárepinen málim múddetke xaq tólew shárti menen qarızǵa alıw hám qaytarıp beriw maydanınan kelip shıǵıw munasábetleri:", "options": ["kredit dep ataladı", "finans dep ataladı", "salıq dep ataladı", "investitsiya dep ataladı"], "correct": 0}, {"q": "Kredit obekti - bul:", "options": ["waqtınsha bos turǵan, qarızǵa beriliwi múmkin bolǵan pullar hám tovarlar", "kárxanalardıń esap nomerlerine kelip túsken pul qarjıları", "xalıq qolındaǵı pullar", "mámleket ixtiyarındaǵı pullar"], "correct": 0}, {"q": "Tovar formasında beriletuǵın kredit - bul:", "options": ["kommerciya krediti", "mámleket krediti", "Tutınıw krediti", "bank krediti"], "correct": 0}, {"q": "Xalıq aralıq kredit - bul:", "options": ["ssuda kapitalınıń xalıq aralıq kólemdegi háreketi bolıp, bul háreket tovar hám valyuta kórinisindegi aqshalardı qaytarıp beriwlilik, múddetlilik hám xaq tólewlilik tiykarında beriw menen baylanıslı", "mámleket tárepinen kishi biznes hám menshikli isbilermenlik iskerligi ushın beriletuǵın kredit bolıp tabıladı", "Oraylıq bank tárepinen xuquqiy shaxslarǵa beriletuǵın kredit bolıp tabıladı", "fizikalıq shaxslarǵa beriletuǵın kreditler bolıp tabıladı"], "correct": 0}, {"q": "Bir mámleket firması tárepinen ekinshi mámlekettegi firmaǵa beriletuǵın kredit - bul:", "options": ["firmalıq kredit dep ataladı", "mámleket krediti dep ataladı", "bank krediti dep ataladı", "kommerciya krediti dep ataladı"], "correct": 0}, {"q": "Kreditlestiriw degende:", "options": ["kredit resursları esabınan ilajlardı ámelge asırıw dárejesi túsiniledi", "Óz qarjıları esabınan ilajlardı ámelge asırıw dárejesi túsiniledi", "salıq qarjıları esabınan ilajlardı ámelge asırıw dárejesi túsiniledi", "ustav qarjıları esabınan ilajlardı ámelge asırıw dárejesi túsiniledi"], "correct": 0}, {"q": "Kóshpeli múlkti, ásbap úskenelerdi uzaq múddetke girewge beriw:", "options": ["lizing dep ataladı", "kredit dep ataladı", "Investitsiya dep ataladı", "finans dep ataladı"], "correct": 0}, {"q": "Lombardli kredit - bul:", "options": ["qısqa múddetli, muǵdarı qatań belgilengen ssuda bolıp, ańsat satılatuǵın qozǵalıwshı múlk yamasa xuquq penen támiyinlengen boladı", "kommerciya bankleri tárepinen beriletuǵın kreditler bolıp tabıladı", "mámleket tárepinen beriletuǵın kreditler bolıp tabıladı", "kredit awqamları beretuǵın kreditler bolıp tabıladı"], "correct": 0}, {"q": "Kreditke uqıplılıq degende:", "options": ["kárxananıń bankten soraǵan ssuda waqıtında hám tolıq qaytara alıw múmkinshiligi túsiniledi", "kredit shártnaması túsiniledi", "depozitlew múmkinshiligi túsiniledi", "investitsiyalaw múmkinshiligi túsiniledi"], "correct": 0}, {"q": "Barlıq likvidli aqshalardıń qanshelli dárejede qısqa múddetli minnetlemeleriniń jámi jıyındısın qaplay alıwın kórsetiwshi koeffitsent - bul:", "options": ["qaplaw koeffitsenti", "likvidlilik koeffitsenti", "hárekettegi likvidlilik koeffitsenti", "laxzalik likvidlilik koeffitsenti"], "correct": 5}, {"q": "Bank alatuǵın hám tóleytuǵın procent ortasındaǵı parq:", "options": ["marja dep ataladı", "procent stavkası dep ataladı", "divident dep ataladı", "depozit dep ataladı"], "correct": 0}, {"q": "Kredit resursları auktsionı degende:", "options": ["kredit resursların erkin, ashıq tárzde auktsion arqalı satıw túsiniledi", "kredit resursların oraylıq bankten qosıw túsiniledi", "basqa banklerden kredit alıw túsiniledi", "xalıqtan depozitlerdi qosıw túsiniledi"], "correct": 0}, {"q": "Kommerciya bankleri tartqan qarjılarınan málim bir bóleginiń Oraylıq banktiń rezerv fondına ótkeriliwi:", "options": ["májburiy rezervler siyasatı dep ataladı", "qayta finanslıq támiynlew siyasatı dep ataladı", "finanslıq támiynlew siyasatı dep ataladı", "ashıq bazar siyasatı dep ataladı"], "correct": 0}, {"q": "Kredit shártnamasında názerde tutılǵan procent stavkası:", "options": ["nominal procent stavkası dep ataladı", "real procent stavkası dep ataladı", "ózgeriwsheń procent stavkası dep ataladı", "marja dep ataladı"], "correct": 0}, {"q": "Inflyatsiya dárejesin esapqa alǵan jaǵdaydaǵı stavka - bul:", "options": ["real procent stavkası", "nominal procent stavkası", "marja", "ózgermeytuǵın procent stavka"], "correct": 0}, {"q": "Klienttiń moynındaǵı minnetlemelerdi óz waqtında orınlaw tarawindegi asırǵan shuxratı:", "options": ["klienttiń abıroy -itibarı dep ataladı", "klienttiń múmkinshiligi dep ataladı", "klienttiń kapitalı dep ataladı", "klienttiń kredit uqıpı dep ataladı"], "correct": 0}, {"q": "Klienttiń barlıq operatsiyalar boyınsha yamasa anıq bir proekt boyınsha pul qarjıların ıyelew múmkinshiligi - bul:", "options": ["klienttiń múmkinshiligi dep ataladı", "klienttiń abıray -itibarı dep ataladı", "klienttiń kapitalı dep ataladı", "klienttiń kredit uqıpı dep ataladı"], "correct": 0}, {"q": "Procent stavkalarınıń dárejesi hám háreketiniń ózgeriwi nátiyjesinde zálel kóriw qáwipi:", "options": ["procent qáwip xateri dep ataladı", "depozit qáwip xateri dep ataladı", "bank qáwip xateri dep ataladı", "payda qáwip xateri dep ataladı"], "correct": 0}, {"q": "Qaytarılıw múddeti kelgen, lekin bank klientiniń tólewge uqıpsızlıǵı sebepli tólenbip atırǵan ssudalar:", "options": ["mashqalalı ssudalar dep ataladı", "standart kreditler dep ataladı", "substandart kreditler dep ataladı", "protsentsiz kreditler dep ataladı"], "correct": 0}, {"q": "Kredit emissiyasi processinde:", "options": ["kredit emissiyasınıń muǵdarı kóbeyedi", "qımbat bahalı qaǵazlardıń kursı páseyedi", "kredit resurslarına bolǵan talap azayadı", "qımbat bahalı qaǵazlardıń kursı asadı"], "correct": 0}, {"q": "Puldıń aylanıs quralınıń ayrıqsha ózgesheligi:", "options": ["ol jaǵdayda tek naq pul qatnasadı", "ol jaǵdayda tek naq bolmaǵan pullar qatnasadı", "plastik kartochka arqalı tólew ámelge asırıladı", "tólew kredit arqalı ámelge asırıladı"], "correct": 0}, {"q": "Kredit munasábetler tiykarında júzege keliwshi, tólew quralın orınlawshı baha belgileri - bul:", "options": ["kredit pullar dep ataladı", "real pullar dep ataladı", "nominal pullar dep ataladı", "xaqiqiy pullar dep ataladı"], "correct": 0}, {"q": "Mashina, ásbap -úskeneler, transport quralların, islep shıǵarıw binalardı, imaratların uzaq múddetli kireyge beriw - bul:", "options": ["lizing dep ataladı", "kredit dep ataladı", "depozit dep ataladı", "lombard dep ataladı"], "correct": 0}, {"q": "Naq aqshası hám naq pulsiz ámelge asırılatuǵın tólemlerdiń jıyındısı:", "options": ["pul aylanısı dep ataladı", "pul massası dep ataladı", "pul muǵdarı dep ataladı", "baylıq dep ataladı"], "correct": 0}, {"q": "Kárxananıń oǵan xızmet kórsetiwshi bankke óz esap betinen basqa subekttiń esap betine aqsha ótkerip qoyıw tuwrısındaǵı tapsırıǵı:", "options": ["tólew tapsırnaması dep ataladı", "tólew talapnaması dep ataladı", "akkreditiv dep ataladı", "inkasso dep ataladı"], "correct": 0}, {"q": "Yuridikalıq shaxslarǵa xizmet kórsetiw ushın mólsherlengen kartochka - bul:", "options": ["korporativ plastik kartochka dep ataladı", "plastik kartochka dep ataladı", "kredit dep ataladı", "deposit dep ataladı"], "correct": 0}, {"q": "Oraylıq bank tárepinen tiyisli litsenziyaǵa iye bolmaǵan fizikalıq shaxslar, sonıń menen birge xojalıq jurgiziwshi subektler tárepinen úlken procent ornına aqshalardı waqtınsha paydalanıw ushın beriw jolı menen ámelge asırilatuǵın kredit:", "options": ["sútxorlıq krediti dep ataladı", "bank krediti dep ataladı", "tutınıw krediti dep ataladı", "mámleket krediti dep ataladı"], "correct": 0}, {"q": "Múddeti bir jılǵa shekem bolǵan kreditler:", "options": ["qısqa múddetli kreditler dep ataladı", "orta múddetli kreditler dep ataladı", "uzaq múddetli kreditler dep ataladı", "múddetsiz kreditler dep ataladı"], "correct": 0}, {"q": "Kommerciya bankleri kredit resurslarınıń tiykarǵı bólegin:", "options": ["tartılǵan aqshalar quraydı", "óz qarjları quraydı", "emitentlengen aqshalar quraydı", "rezerv kapitalı quraydı"], "correct": 0}, {"q": "Pul - bul:", "options": ["sonday arnawlı tovar, ol hámme basqa tovarlar ushın ulıwma ekvivalent wazıypasın atqaradı", "aylanıs wazıypasın atqaradı", "jáhan aqshası wazıypasın atqaradı", "tólew wazıypasın atqaradı"], "correct": 0}, {"q": "Ózbekstannıń milliy valyutası swm:", "options": ["1994 jıl 1 iyuldan aylanısqa kiritilgen", "1991 jıl 1 sentyabrden aylanısqa kiritilgen", "2000 jıl 1 yanvardan aylanısqa kiritilgen", "1992 jıl 1 yanvardan aylanısqa kiritilgen"], "correct": 0}, {"q": "Fond quralı - bul:", "options": ["puldıń jıynalǵan baylıq formasına kirip, óz iyesi ushın kerek bolǵanda satıp alınǵan zat quralı bolıp xızmet ete alıwı", "tovarda sáwlelengen social miynet sarpı bolıp tabıladı", "puldıń túrli aldı –sattı pitimlerinde qatnasıwı bolıp tabıladı", "tovar hám xızmetlerdiń fondı bolıp tabıladı"], "correct": 0}, {"q": "Jamǵarılıp satıp alınǵan zat uqıplılıǵın saqlawshı barlıq pul quralları:", "options": ["pul agregati dep ataladı", "kredit dep ataladı", "depozit dep ataladı", "pul massası dep ataladı"], "correct": 0}, {"q": "Kárxana hám shólkemler tárepinen tovar almaslaw, xızmetler kórsetiw hám tovarsız operatsiyalar boyınsha bir-birine bolǵan talap hám minnetlemelerdi naq pul isletpesten pul aqshaların bir schettan basqa bir schetqa ótkeriy arqalı ámelge asırilatuǵın esap-kitaplar - bul:", "options": ["naq pulsiz esap kitaplar dep ataladı", "naq pullı esap kitaplar dep ataladı", "kredit operatsiyaları dep ataladı", "passiv operatsiyalar dep ataladı"], "correct": 0}, {"q": "Sap bazar ekonomikasın, puldı alǵıslaytuǵın teoriya - bul:", "options": ["monetarizm teoriyası bolıp tabıladı", "muǵdarlıqlıq teoriyası bolıp tabıladı", "nominallıq teoriyası bolıp tabıladı", "metallik teoriyası bolıp tabıladı"], "correct": 0}, {"q": "Xojalıq háreketinde puldıń mudami aylanıwda bolıwı, onıń óz wazıypaların úzliksiz atqarıp turıwı - bul:", "options": ["pul aylanısı dep ataladı", "pul massası dep ataladı", "s.pul agregatı dep ataladı", "pul sisteması dep ataladı"], "correct": 0}, {"q": "Qarızǵa beriletuǵın pul aqshalari kólemi - bul:", "options": ["kredit summası dep ataladı", "procent dep ataladı", "ústeme dep ataladı", "limit dep ataladı"], "correct": 0}, {"q": "Kóshpeli mulkti girewge alıp, uzaq múddetke beriletuǵın kredit - bul:", "options": ["ipoteka krediti", "xalıq aralıq kredit", "lombard krediti", "sútxorlıq krediti"], "correct": 0}, {"q": "Emissiya degende:", "options": ["aylanısqa bank biletleri, pul hám qımbat bahalı qaǵazlardı shıǵarıw túsiniledi", "tovar, xızmet hám kapitallardı mámleket tısqarısına shıǵarıw túsiniledi", "qımbat bahalı qaǵazlar shıǵarıw xuquqı berilgen bankler túsiniledi", "aktsionerler jámiyeti túsiniledi"], "correct": 0}, {"q": "Mámleket milliy valyutasınıń shet el valyuta kursına salıstırǵanda mámleket tárepinen rásmiy túsindiriliwi - bul:", "options": ["devalvatsiya", "subsidiya", "dotatsiya", "kredit"], "correct": 0}];
+
+// 7x25 + 1x29 = 204
+const GROUPS = [
+  {label:'1-TOP', range:'1–25',  start:0,  end:25, timer:30},
+  {label:'2-TOP', range:'26–50', start:25, end:50, timer:30},
+  {label:'3-TOP', range:'51–75', start:50, end:75, timer:30},
+  {label:'4-TOP', range:'76–96', start:75, end:96, timer:30},
+];
+
+let scores={};
+try{scores=JSON.parse(localStorage.getItem('pul96_scores')||'{}');}catch(e){}
+let currentQuestions=[],currentIndex=0,score=0,answered=false,currentGroupLabel='',quizMode='';
+let timerInterval=null,timeLeft=0,groupTimer=30;
+
+function saveScore(key,pct){
+  scores[key]=pct;
+  try{localStorage.setItem('pul96_scores',JSON.stringify(scores));}catch(e){}
+}
+
+function init(){
+  const grid=document.getElementById('groupGrid');
+  grid.innerHTML='';
+  GROUPS.forEach((g,i)=>{
+    const card=document.createElement('div');
+    card.className='group-card';
+    const s=scores['g'+i];
+    const doneEl=s!==undefined?`<div class="gc-done">${s>=70?'✅':'🔄'}</div>`:'';
+    const scoreEl=s!==undefined?`<div class="gc-score" style="color:${s>=70?'var(--correct)':'var(--wrong)'}">${s}%</div>`:'';
+    card.innerHTML=`${doneEl}
+      <div class="gc-num">${i+1}</div>
+      <div class="gc-label">${g.label}</div>
+      <div class="gc-range">${g.range} soraw</div>
+      <div class="gc-timer">⏱ ${g.timer}s</div>
+      ${scoreEl}`;
+    card.onclick=()=>startQuiz(i);
+    grid.appendChild(card);
+  });
+}
+
+function startQuiz(groupIdx){
+  if(groupIdx==='all'){
+    currentQuestions=shuffle([...ALL_QUESTIONS]);
+    currentGroupLabel='BARLIQ 96 SORAW';
+    quizMode='all'; groupTimer=30;
+  } else {
+    const g=GROUPS[groupIdx];
+    currentQuestions=shuffle(ALL_QUESTIONS.slice(g.start,g.end));
+    currentGroupLabel=g.label+' · '+g.range+' soraw';
+    quizMode=groupIdx; groupTimer=g.timer;
+  }
+  currentIndex=0; score=0;
+  show('quizScreen');
+  renderQuestion();
+}
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+
+function renderQuestion(){
+  const q=currentQuestions[currentIndex];
+  answered=false;
+  document.getElementById('quizGroupLabel').textContent=currentGroupLabel;
+  document.getElementById('qCounter').textContent=`${currentIndex+1} / ${currentQuestions.length}`;
+  document.getElementById('qNumber').textContent=`SORAW #${currentIndex+1}`;
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('progressFill').style.width=(currentIndex/currentQuestions.length*100)+'%';
+
+  const list=document.getElementById('optionsList');
+  list.innerHTML='';
+  const letters=['A','B','C','D'];
+  const idxArr=shuffle([0,1,2,3].slice(0,q.options.length));
+  const newCorrect=idxArr.indexOf(q.correct);
+  idxArr.forEach((origIdx,newIdx)=>{
+    const btn=document.createElement('button');
+    btn.className='option-btn';
+    btn.dataset.correct=(newIdx===newCorrect)?'1':'0';
+    btn.innerHTML=`<span class="option-letter">${letters[newIdx]}</span>${q.options[origIdx]}`;
+    btn.onclick=()=>selectOption(btn);
+    list.appendChild(btn);
+  });
+
+  document.getElementById('nextBtn').className='next-btn';
+  document.getElementById('nextBtn').textContent=currentIndex<currentQuestions.length-1?'KEYINGISI →':'NÁTIYJE →';
+
+  if(quizMode!=='all') startTimer();
+  else document.getElementById('timerWrap').style.display='none';
+}
+
+function selectOption(btn){
+  if(answered)return;
+  answered=true;
+  stopTimer();
+  document.querySelectorAll('.option-btn').forEach(b=>b.disabled=true);
+  if(btn.dataset.correct==='1'){
+    btn.classList.add('correct');
+    score++;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.option-btn').forEach(b=>{
+      if(b.dataset.correct==='1') b.classList.add('correct');
+    });
+  }
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function startTimer(){
+  stopTimer();
+  timeLeft=groupTimer;
+  document.getElementById('timerWrap').style.display='flex';
+  updateTimerUI();
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    if(timeLeft<=0){
+      timeLeft=0; updateTimerUI(); stopTimer();
+      if(!answered){
+        answered=true;
+        document.querySelectorAll('.option-btn').forEach(b=>{
+          b.disabled=true;
+          if(b.dataset.correct==='1') b.classList.add('correct');
+        });
+        document.getElementById('nextBtn').classList.add('show');
+      }
+    } else updateTimerUI();
+  },1000);
+}
+
+function stopTimer(){clearInterval(timerInterval);timerInterval=null;}
+
+function updateTimerUI(){
+  const num=document.getElementById('timerNum');
+  const arc=document.getElementById('timerArc');
+  const bar=document.getElementById('timerBarFill');
+  const pct=timeLeft/groupTimer;
+  arc.style.strokeDashoffset=119-(119*pct);
+  bar.style.width=(pct*100)+'%';
+  num.textContent=timeLeft;
+  const isDanger=pct<=0.25, isWarn=pct<=0.5&&pct>0.25;
+  num.className='timer-num'+(isDanger?' danger':isWarn?' warn':'');
+  arc.style.stroke=isDanger?'var(--wrong)':isWarn?'#f4a261':'var(--accent2)';
+  bar.className='timer-bar-fill'+(isDanger?' danger':isWarn?' warn':'');
+}
+
+function nextQuestion(){
+  currentIndex++;
+  if(currentIndex>=currentQuestions.length) showResult();
+  else renderQuestion();
+}
+
+function showResult(){
+  stopTimer();
+  document.getElementById('timerWrap').style.display='none';
+  show('resultScreen');
+  const total=currentQuestions.length;
+  const pct=Math.round(score/total*100);
+  if(quizMode!=='all') saveScore('g'+quizMode,pct);
+  document.getElementById('scorePct').textContent=pct+'%';
+  document.getElementById('correctCount').textContent=score;
+  document.getElementById('wrongCount').textContent=total-score;
+  document.getElementById('totalCount').textContent=total;
+  document.getElementById('progressFill').style.width='100%';
+  let title,detail;
+  if(pct>=90){title='🏆 Ajoyıp!';detail='Siz jaqsı tayarlanǵansız!';}
+  else if(pct>=70){title='👍 Jaqsı!';detail='Biraı temalar boyınsha qaytadan oqıń.';}
+  else if(pct>=50){title='📚 Orta nátiyje';detail='Materiallardı qaytadan oqıwını máslehat beremiz.';}
+  else{title='💪 Umıtpań!';detail='Tağı bir márte sınap kóriń!';}
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultDetail').textContent=detail;
+  setTimeout(()=>{
+    const arc=document.getElementById('scoreArc');
+    arc.style.transition='stroke-dashoffset 1.2s ease';
+    arc.style.strokeDashoffset=427-(427*pct/100);
+  },100);
+  init();
+}
+
+function retryQuiz(){startQuiz(quizMode);}
+function goHome(){stopTimer();document.getElementById('timerWrap').style.display='none';show('startScreen');init();}
+
+function show(id){
+  ['startScreen','quizScreen','resultScreen'].forEach(s=>{
+    const el=document.getElementById(s);
+    if(s==='startScreen') el.style.display='none';
+    else el.classList.remove('active');
+  });
+  const t=document.getElementById(id);
+  if(id==='startScreen') t.style.display='block';
+  else t.classList.add('active');
+}
+
+init();
+</script>
+</body>
+</html>
